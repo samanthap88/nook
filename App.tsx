@@ -1,20 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { ActivityIndicator, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./src/navigation/AppNavigator";
+import AuthScreen from "./src/screens/AuthScreen";
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
+import { BathroomProvider } from "./src/context/BathroomContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function App() {
+function RootContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#EEF6FA" }}>
+        <ActivityIndicator size="large" color="#0D6A94" />
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <SafeAreaView style={{ flex: 1 }}>
+        <AppNavigator />
+      </SafeAreaView>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <AuthProvider>
+      <BathroomProvider>
+        <RootContent />
+      </BathroomProvider>
+    </AuthProvider>
+  );
+}
